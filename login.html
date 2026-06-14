@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login | Sunday Domains</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="login-page">
+
+  <div class="login-wrapper">
+    <div class="login-card">
+      <a href="index.html" class="logo login-logo">Sunday<span>Domains</span></a>
+      <h2>Welcome back</h2>
+      <p>Log in to manage your domains, hosting, and AI websites.</p>
+
+      <input type="email" placeholder="Email address" />
+      <input type="password" placeholder="Password" />
+
+      <button type="button" class="btn-login" onclick="fakeLogin()">Log In</button>
+
+      <p class="signup-text">
+        Don't have an account? <span onclick="fakeLogin()">Sign up free</span>
+      </p>
+
+      <a href="index.html">← Back to Home</a>
+    </div>
+  </div>
+
+  <script>
+    function fakeLogin() {
+      window.location.href = "dashboard.html";
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>My Websites | Sunday Domains</title>
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body class="dashboard-page">
+
+  <header class="navbar">
+    <div class="logo">🌐 Sunday Domains</div>
+
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="websites.html">My Websites</a>
+      <a href="templates.html">Templates</a>
+    </nav>
+
+    <a href="index.html" class="nav-btn">Logout</a>
+  </header>
+
+  <main class="account-dashboard">
+
+    <section class="account-header">
+      <h1>🌍 My Websites</h1>
+      <p>Create, edit, and publish customer websites.</p>
+    </section>
+
+    <section class="account-panel">
+
+      <div class="panel-actions">
+        <button onclick="showCreateWebsite()">+ Create New Website</button>
+        <button onclick="showExistingWebsite()">View Existing Website</button>
+      </div>
+
+      <div id="websitePanel" class="account-panel" style="margin-top:25px;">
+        <h2>Website Manager</h2>
+        <p>Choose an option above.</p>
+      </div>
+
+    </section>
+
+  </main>
+
+  <script>
+    function showCreateWebsite() {
+      document.getElementById("websitePanel").innerHTML = `
+        <h2>✨ Create New Website</h2>
+        <p>Enter basic business details to generate a starter website.</p>
+
+        <input id="newSiteName" placeholder="Business Name" />
+
+        <select id="newSiteType">
+          <option>Restaurant</option>
+          <option>Salon</option>
+          <option>Travel Agency</option>
+          <option>Online Store</option>
+          <option>Consulting</option>
+          <option>Home Services</option>
+        </select>
+
+        <select id="newSiteStyle">
+          <option>Modern</option>
+          <option>Luxury</option>
+          <option>Friendly</option>
+          <option>Bold</option>
+          <option>Professional</option>
+        </select>
+
+        <div class="panel-actions">
+          <button onclick="generateNewWebsite()">Generate Website</button>
+        </div>
+      `;
+    }
+
+    function generateNewWebsite() {
+      const name = document.getElementById("newSiteName").value || "Your Business";
+      const type = document.getElementById("newSiteType").value;
+      const style = document.getElementById("newSiteStyle").value;
+
+      document.getElementById("websitePanel").innerHTML = `
+        <h2>✅ Website Generated</h2>
+        <p><strong>${name}</strong> — ${type}</p>
+        <p>Style: ${style}</p>
+
+        <div class="mini-site">
+          <h2>${name}</h2>
+          <p>Your trusted ${type.toLowerCase()} solution.</p>
+          <button>Contact Us</button>
+        </div>
+
+        <div class="panel-actions">
+          <button onclick="publishNewWebsite('${name}')">Publish Website</button>
+          <button onclick="showCreateWebsite()">Edit Details</button>
+        </div>
+      `;
+    }
+
+    function publishNewWebsite(name) {
+      const slug = name.toLowerCase().replace(/\s+/g, "-");
+
+      document.getElementById("websitePanel").innerHTML = `
+        <h2>🚀 Website Published</h2>
+        <p>Your website is now live.</p>
+
+        <div class="published-link">
+          https://${slug}.sundaydomains.com
+        </div>
+
+        <div class="panel-actions">
+          <button onclick="showExistingWebsite()">View Website</button>
+          <button onclick="showCreateWebsite()">Create Another</button>
+        </div>
+      `;
+    }
+
+    function showExistingWebsite() {
+      document.getElementById("websitePanel").innerHTML = `
+        <h2>Sunday Sample Site</h2>
+
+        <div class="overview-row">
+          <span>Status</span>
+          <strong class="status-green">Published</strong>
+        </div>
+
+        <div class="overview-row">
+          <span>Connected Domain</span>
+          <strong>sundayexample.com</strong>
+        </div>
+
+        <div class="panel-actions">
+          <button onclick="openWebsite()">Open Website</button>
+          <button onclick="editWebsite()">Edit Website</button>
+          <button onclick="publishWebsitePage()">Publish</button>
+        </div>
+      `;
+    }
+
+    function openWebsite() {
+      document.getElementById("websitePanel").innerHTML = `
+        <h2>🌍 Website Preview</h2>
+        <div class="mini-site">
+          <h2>Sunday Sample Site</h2>
+          <p>Your professional website is live and ready for visitors.</p>
+          <button>Contact Us</button>
+        </div>
+
+        <div class="panel-actions">
+          <button onclick="showExistingWebsite()">Back</button>
+        </div>
+      `;
+    }
+
+    function editWebsite() {
+      document.getElementById("websitePanel").innerHTML = `
+        <h2>✏️ Edit Website</h2>
+
+        <input id="siteTitle" value="Sunday Sample Site" />
+        <input id="siteText" value="Your professional website is live and ready for visitors." />
+
+        <div class="panel-actions">
+          <button onclick="saveWebsiteEdit()">Save Changes</button>
+        </div>
+      `;
+    }
+
+    function saveWebsiteEdit() {
+      const title = document.getElementById("siteTitle").value;
+      const text = document.getElementById("siteText").value;
+
+      document.getElementById("websitePanel").innerHTML = `
+        <h2>✅ Changes Saved</h2>
+
+        <div class="mini-site">
+          <h2>${title}</h2>
+          <p>${text}</p>
+          <button>Contact Us</button>
+        </div>
+
+        <div class="panel-actions">
+          <button onclick="showExistingWebsite()">Back to Website</button>
+        </div>
+      `;
+    }
+
+    function publishWebsitePage() {
+      document.getElementById("websitePanel").innerHTML = `
+        <h2>🚀 Website Published</h2>
+        <p>Your latest website changes are now live.</p>
+
+        <div class="published-link">
+          https://sundayexample.com
+        </div>
+
+        <div class="panel-actions">
+          <button onclick="showExistingWebsite()">Back</button>
+        </div>
+      `;
+    }
+  </script>
+
+</body>
+</html>

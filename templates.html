@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Templates | Sunday Domains</title>
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body class="dashboard-page">
+
+  <header class="navbar">
+    <div class="logo">🌐 Sunday Domains</div>
+
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="websites.html">My Websites</a>
+      <a href="templates.html">Templates</a>
+    </nav>
+
+    <a href="index.html" class="nav-btn">Logout</a>
+  </header>
+
+  <main class="account-dashboard">
+
+    <section class="account-header">
+      <h1>🎨 Website Templates</h1>
+      <p>Choose a ready-made template and publish faster.</p>
+    </section>
+
+    <section class="template-grid">
+
+      <div class="template-card">
+        <div class="template-preview business-preview">
+          <h3>Business Pro</h3>
+          <p>Professional service website</p>
+        </div>
+        <h3>🏢 Business</h3>
+        <button onclick="useTemplate('Business Pro')">Use Template</button>
+      </div>
+
+      <div class="template-card">
+        <div class="template-preview travel-preview">
+          <h3>Travel Deals</h3>
+          <p>Flights, hotels, and vacation offers</p>
+        </div>
+        <h3>✈️ Travel</h3>
+        <button onclick="useTemplate('Travel Deals')">Use Template</button>
+      </div>
+
+      <div class="template-card">
+        <div class="template-preview store-preview">
+          <h3>Online Store</h3>
+          <p>Sell products online</p>
+        </div>
+        <h3>🛍️ Ecommerce</h3>
+        <button onclick="useTemplate('Online Store')">Use Template</button>
+      </div>
+
+      <div class="template-card">
+        <div class="template-preview restaurant-preview">
+          <h3>Restaurant</h3>
+          <p>Menu, reservations, and orders</p>
+        </div>
+        <h3>🍔 Restaurant</h3>
+        <button onclick="useTemplate('Restaurant')">Use Template</button>
+      </div>
+
+      <div class="template-card">
+        <div class="template-preview salon-preview">
+          <h3>Beauty Salon</h3>
+          <p>Services and appointments</p>
+        </div>
+        <h3>💇 Salon</h3>
+        <button onclick="useTemplate('Beauty Salon')">Use Template</button>
+      </div>
+
+      <div class="template-card">
+        <div class="template-preview realestate-preview">
+          <h3>Real Estate</h3>
+          <p>Listings and property leads</p>
+        </div>
+        <h3>🏠 Real Estate</h3>
+        <button onclick="useTemplate('Real Estate')">Use Template</button>
+      </div>
+
+    </section>
+
+    <section id="templatePanel" class="account-panel" style="margin-top:35px;">
+      <h2>Template Preview</h2>
+      <p>Select a template above to preview it.</p>
+    </section>
+
+  </main>
+
+  <script>
+    function useTemplate(name) {
+      const slug = name.toLowerCase().replace(/\s+/g, "-");
+
+      document.getElementById("templatePanel").innerHTML = `
+        <h2>✅ ${name} Template Selected</h2>
+        <p>You can now publish this template or customize it.</p>
+
+        <div class="mini-site">
+          <h2>${name}</h2>
+          <p>A ready-made website template for your business.</p>
+          <button>Contact Us</button>
+        </div>
+
+        <div class="panel-actions">
+          <button onclick="publishTemplate('${slug}')">Publish Template</button>
+          <button onclick="customizeTemplate('${name}')">Customize</button>
+        </div>
+      `;
+    }
+
+    function publishTemplate(slug) {
+      document.getElementById("templatePanel").innerHTML = `
+        <h2>🚀 Template Published</h2>
+        <p>Your website is now live.</p>
+
+        <div class="published-link">
+          https://${slug}.sundaydomains.com
+        </div>
+      `;
+    }
+
+    function customizeTemplate(name) {
+      document.getElementById("templatePanel").innerHTML = `
+        <h2>✏️ Customize ${name}</h2>
+
+        <input id="customTitle" value="${name}" />
+        <input id="customText" value="A ready-made website template for your business." />
+
+        <div class="panel-actions">
+          <button onclick="saveTemplateEdit()">Save Changes</button>
+        </div>
+      `;
+    }
+
+    function saveTemplateEdit() {
+      const title = document.getElementById("customTitle").value;
+      const text = document.getElementById("customText").value;
+
+      document.getElementById("templatePanel").innerHTML = `
+        <h2>✅ Template Updated</h2>
+
+        <div class="mini-site">
+          <h2>${title}</h2>
+          <p>${text}</p>
+          <button>Contact Us</button>
+        </div>
+
+        <div class="panel-actions">
+          <button onclick="publishTemplate('${title.toLowerCase().replace(/\s+/g, "-")}')">
+            Publish
+          </button>
+        </div>
+      `;
+    }
+  </script>
+
+</body>
+</html>

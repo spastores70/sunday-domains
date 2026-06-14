@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sunday Domains | Domains, Hosting & AI Websites</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <header class="navbar">
+    <div class="nav-inner">
+      <div class="logo">Sunday<span>Domains</span></div>
+      <nav class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#why">Why Us</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <div class="nav-actions">
+        <a href="login.html" class="btn-ghost">Log In</a>
+        <a href="#" class="btn-primary" onclick="scrollToTop(); return false;">Get Started</a>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero" id="hero">
+    <div class="hero-inner">
+      <div class="hero-badge">🏆 Trusted by 10,000+ small businesses</div>
+      <h1>Your Domain.<br>Your Business.<br><span>Your Way.</span></h1>
+      <p>Find the perfect domain name and launch your website in minutes. No tech skills needed.</p>
+
+      <div class="search-wrap">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="domainInput" placeholder="Find your perfect domain..." />
+          <button onclick="searchDomain()">Search</button>
+        </div>
+        <div class="tld-pills">
+          <span>.com</span><span>.net</span><span>.org</span><span>.co</span><span>.ai</span>
+        </div>
+      </div>
+
+      <div id="result" class="result-box"></div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="floating-card card-1">
+        <span>✅</span>
+        <div>yourbrand.com <strong>Available!</strong></div>
+      </div>
+      <div class="floating-card card-2">
+        <span>🚀</span>
+        <div>Live in <strong>5 minutes</strong></div>
+      </div>
+      <div class="floating-card card-3">
+        <span>🤖</span>
+        <div>AI Website <strong>Builder</strong></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="trust-bar">
+    <span>⚡ Instant Setup</span>
+    <span>🔒 Secure & Reliable</span>
+    <span>💬 24/7 Support</span>
+    <span>🌐 100+ TLDs</span>
+    <span>🤖 AI-Powered</span>
+  </div>
+
+  <section class="features-section" id="features">
+    <div class="section-inner">
+      <div class="section-label">Everything you need</div>
+      <h2>One Platform, Infinite Possibilities</h2>
+      <p class="section-sub">From domain registration to AI-generated websites — we've got you covered.</p>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🔎</div>
+          <h3>Domain Search</h3>
+          <p>Instantly check availability across hundreds of extensions. Find the perfect name for your brand.</p>
+          <span class="feature-link" onclick="scrollToTop()">Search domains →</span>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🚀</div>
+          <h3>Instant Hosting</h3>
+          <p>Connect your domain to blazing-fast hosting in seconds. No server configuration required.</p>
+          <a class="feature-link" href="#pricing">View plans →</a>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🤖</div>
+          <h3>AI Website Builder</h3>
+          <p>Describe your business and our AI generates a complete, professional website instantly.</p>
+          <span class="feature-link">Coming soon →</span>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📧</div>
+          <h3>Business Email</h3>
+          <p>Get a professional email matching your domain. hello@yourbrand.com looks serious.</p>
+          <span class="feature-link">Learn more →</span>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🌐</div>
+          <h3>DNS Management</h3>
+          <p>Full control over DNS records with a simple, beginner-friendly interface.</p>
+          <span class="feature-link">Learn more →</span>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔒</div>
+          <h3>Free SSL</h3>
+          <p>Free SSL certificates on every domain. Keep visitors safe and SEO rankings high.</p>
+          <span class="feature-link">Learn more →</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="pricing-section" id="pricing">
+    <div class="section-inner">
+      <div class="section-label">Pricing</div>
+      <h2>Simple, Transparent Pricing</h2>
+      <p class="section-sub">No hidden fees. No surprises. Cancel anytime.</p>
+
+      <div class="pricing-grid">
+        <div class="price-card">
+          <div class="plan-name">Starter</div>
+          <div class="plan-price"><span class="dollar">$</span>14<small>.99</small></div>
+          <div class="plan-period">per year</div>
+          <ul class="plan-features">
+            <li>Domain registration</li>
+            <li>DNS management</li>
+            <li>Email forwarding</li>
+            <li>Free WHOIS privacy</li>
+          </ul>
+          <button class="btn-plan" onclick="scrollToTop()">Get Started</button>
+        </div>
+
+        <div class="price-card featured">
+          <div class="plan-badge">Most Popular</div>
+          <div class="plan-name">Business</div>
+          <div class="plan-price"><span class="dollar">$</span>29<small>.99</small></div>
+          <div class="plan-period">per month</div>
+          <ul class="plan-features">
+            <li>Domain included</li>
+            <li>Fast hosting</li>
+            <li>Website builder</li>
+            <li>Business email</li>
+            <li>SSL certificate</li>
+          </ul>
+          <button class="btn-plan" onclick="scrollToTop()">Get Started</button>
+        </div>
+
+        <div class="price-card">
+          <div class="plan-name">Pro</div>
+          <div class="plan-price"><span class="dollar">$</span>49<small>.99</small></div>
+          <div class="plan-period">per month</div>
+          <ul class="plan-features">
+            <li>Everything in Business</li>
+            <li>AI website builder</li>
+            <li>Priority support</li>
+            <li>Monthly updates</li>
+            <li>Analytics dashboard</li>
+          </ul>
+          <button class="btn-plan" onclick="scrollToTop()">Get Started</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="why-section" id="why">
+    <div class="section-inner why-inner">
+      <div class="why-text">
+        <div class="section-label">Why Sunday Domains</div>
+        <h2>Built for People Who Just Want to Get Online</h2>
+        <p>We cut out the complexity. No jargon, no confusing dashboards, no surprise bills — just a clean path from "I need a website" to "I'm live."</p>
+        <div class="why-points">
+          <div class="why-point">
+            <span>✅</span>
+            <div>
+              <strong>Beginner Friendly</strong>
+              <p>Step-by-step guidance so you never feel lost.</p>
+            </div>
+          </div>
+          <div class="why-point">
+            <span>✅</span>
+            <div>
+              <strong>Built for Small Business</strong>
+              <p>Restaurants, salons, consultants, stores — we get you.</p>
+            </div>
+          </div>
+          <div class="why-point">
+            <span>✅</span>
+            <div>
+              <strong>AI-Powered Future</strong>
+              <p>Buy a domain and generate your site in one click.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="why-visual">
+        <div class="mock-browser">
+          <div class="browser-bar">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+            <div class="url-bar">https://yourbrand.com</div>
+          </div>
+          <div class="browser-content">
+            <div class="mock-hero-text">Your Business Name</div>
+            <div class="mock-tagline">Your tagline goes here</div>
+            <div class="mock-cta">Get In Touch</div>
+            <div class="mock-cards">
+              <div class="mock-card"></div>
+              <div class="mock-card"></div>
+              <div class="mock-card"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-section" id="contact">
+    <div class="section-inner cta-inner">
+      <h2>Ready to claim your domain?</h2>
+      <p>Thousands of businesses started with Sunday Domains. You're next.</p>
+      <button class="btn-cta-large" onclick="scrollToTop()">Search Your Domain →</button>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="logo footer-logo">Sunday<span>Domains</span></div>
+        <p>The simplest way to get your small business online.</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <h4>Products</h4>
+          <a href="#">Domain Search</a>
+          <a href="#">Hosting</a>
+          <a href="#">AI Builder</a>
+          <a href="#">Business Email</a>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <a href="#">About</a>
+          <a href="#">Blog</a>
+          <a href="#">Careers</a>
+          <a href="#">Press</a>
+        </div>
+        <div class="footer-col">
+          <h4>Support</h4>
+          <a href="#">Help Center</a>
+          <a href="#">Contact Us</a>
+          <a href="#">Status</a>
+          <a href="#">Privacy</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 Sunday Domains. All rights reserved.</p>
+      <p>Made with ☀️ for small businesses</p>
+    </div>
+  </footer>
+
+  <div id="paymentModal" class="modal">
+    <div class="modal-box">
+      <button type="button" class="close-btn" onclick="closeCheckout()">×</button>
+
+      <!-- Step progress -->
+      <div class="modal-progress">
+        <span class="step-dot active"></span>
+        <span class="step-line"></span>
+        <span class="step-dot"></span>
+      </div>
+
+      <!-- Step 1: Contact / WHOIS info -->
+      <div id="modalStep1">
+        <h2>Your Information</h2>
+        <p>Required for domain WHOIS registration.</p>
+        <div class="input-row">
+          <input type="text"  id="firstName"      placeholder="First Name" />
+          <input type="text"  id="lastName"       placeholder="Last Name" />
+        </div>
+        <input type="email" id="contactEmail"   placeholder="Email Address" />
+        <input type="tel"   id="contactPhone"   placeholder="Phone (+1.5555555555)" />
+        <input type="text"  id="contactAddress" placeholder="Street Address" />
+        <div class="input-row">
+          <input type="text" id="contactCity"  placeholder="City" />
+          <input type="text" id="contactState" placeholder="State" />
+          <input type="text" id="contactZip"   placeholder="ZIP" />
+        </div>
+        <input type="text" id="contactCountry" placeholder="Country (e.g. US)" />
+        <button type="button" class="btn-pay" onclick="goToPayment()">Continue to Payment →</button>
+      </div>
+
+      <!-- Step 2: Payment -->
+      <div id="modalStep2" class="modal-step-hidden">
+        <button type="button" class="back-btn" onclick="backToContact()">← Back</button>
+        <h2>Secure Checkout</h2>
+        <p>Your card will be charged today. OpenSRS registers the domain.</p>
+        <input type="text" id="cardNumber" placeholder="Card Number" />
+        <div class="card-row">
+          <input type="text" id="cardExpiry" placeholder="MM/YY" />
+          <input type="text" id="cardCvc"    placeholder="CVC" />
+        </div>
+        <button type="button" class="btn-pay" onclick="confirmOrder()">Complete Order 🔒</button>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

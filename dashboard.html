@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard | Sunday Domains</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="dashboard-page">
+
+  <header class="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="logo">Sunday<span>Domains</span></a>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="#">Domains</a>
+        <a href="#">Hosting</a>
+        <a href="templates.html">Templates</a>
+      </nav>
+      <div class="nav-actions">
+        <a href="index.html" class="btn-ghost">Log Out</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="account-dashboard">
+    <div class="account-header">
+      <h1>My Dashboard</h1>
+      <p>Manage your domains, hosting, email, and websites.</p>
+    </div>
+
+    <div class="account-grid">
+      <div class="account-card">
+        <h3>🌐 Domains</h3>
+        <p>Manage your registered domains</p>
+        <button type="button" onclick="showAccountPanel('domains')">Open</button>
+      </div>
+      <div class="account-card">
+        <h3>🚀 Hosting</h3>
+        <p>Manage your hosting plans</p>
+        <button type="button" onclick="showAccountPanel('hosting')">Open</button>
+      </div>
+      <div class="account-card">
+        <h3>📧 Email</h3>
+        <p>Set up business email</p>
+        <button type="button" onclick="showAccountPanel('email')">Open</button>
+      </div>
+      <div class="account-card">
+        <h3>🤖 AI Builder</h3>
+        <p>Generate websites with AI</p>
+        <button type="button" onclick="showAccountPanel('builder')">Open</button>
+      </div>
+    </div>
+
+    <div id="accountPanel" class="account-panel">
+      <h2>Select a section above</h2>
+      <p>Choose Domains, Hosting, Email, or AI Builder to get started.</p>
+    </div>
+  </div>
+
+  <script>
+    function showAccountPanel(type) {
+      const panel = document.getElementById("accountPanel");
+
+      if (type === "domains") {
+        panel.innerHTML = `
+          <h2>🌐 Domain Manager</h2>
+          <div class="overview-row"><span>sundayexample.com</span><span class="status-green">Active</span></div>
+          <div class="panel-actions">
+            <button type="button" onclick="openDNS()">DNS Settings</button>
+            <button type="button">Renew Domain</button>
+          </div>
+        `;
+      } else if (type === "hosting") {
+        panel.innerHTML = `
+          <h2>🚀 Hosting Manager</h2>
+          <div class="overview-row"><span>Business Plan</span><span class="status-green">Active</span></div>
+          <div class="panel-actions">
+            <button type="button" onclick="connectDomain()">Connect Domain</button>
+            <button type="button">Open File Manager</button>
+          </div>
+        `;
+      } else if (type === "email") {
+        panel.innerHTML = `
+          <h2>📧 Business Email</h2>
+          <p>Create a professional email like hello@yourdomain.com</p>
+          <input type="text" placeholder="username (e.g. hello)" />
+          <div class="panel-actions">
+            <button type="button">Create Email</button>
+          </div>
+        `;
+      } else if (type === "builder") {
+        panel.innerHTML = `
+          <h2>🤖 AI Website Builder</h2>
+          <p>Generate a professional website for your domain.</p>
+          <input type="text" placeholder="Business Name" />
+          <select>
+            <option value="">Choose Business Type</option>
+            <option>Restaurant</option>
+            <option>Salon</option>
+            <option>Travel Agency</option>
+            <option>Online Store</option>
+            <option>Consulting</option>
+          </select>
+          <div class="panel-actions">
+            <button type="button">Generate Website</button>
+          </div>
+        `;
+      }
+    }
+
+    function openDNS() {
+      const panel = document.getElementById("accountPanel");
+      panel.innerHTML = `
+        <h2>🌐 DNS Settings</h2>
+        <p>Manage DNS records for your domain.</p>
+        <label>A Record</label>
+        <input type="text" value="76.76.21.21" />
+        <label>CNAME</label>
+        <input type="text" value="cname.vercel-dns.com" />
+        <label>MX Record</label>
+        <input type="text" value="mail.sundaydomains.com" />
+        <label>TXT Record</label>
+        <input type="text" value="v=spf1 include:_spf.google.com ~all" />
+        <div class="panel-actions">
+          <button type="button" onclick="saveDNS()">Save DNS</button>
+          <button type="button" onclick="showAccountPanel('domains')">Back</button>
+        </div>
+      `;
+    }
+
+    function saveDNS() {
+      const panel = document.getElementById("accountPanel");
+      if (!panel.querySelector(".dns-success")) {
+        panel.innerHTML += `<div class="dns-success">✅ DNS records updated successfully</div>`;
+      }
+    }
+
+    function connectDomain() {
+      const panel = document.getElementById("accountPanel");
+      panel.innerHTML = `
+        <h2>🔗 Connect Domain</h2>
+        <p>Point your domain to your hosting.</p>
+        <label>Select Domain</label>
+        <select>
+          <option>sundayexample.com</option>
+        </select>
+        <label>Hosting Provider</label>
+        <select>
+          <option>Sunday Hosting</option>
+          <option>Vercel</option>
+          <option>Netlify</option>
+        </select>
+        <div class="panel-actions">
+          <button type="button">Connect</button>
+          <button type="button" onclick="showAccountPanel('hosting')">Back</button>
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>
