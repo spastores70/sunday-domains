@@ -226,19 +226,19 @@ function showDashboard(contact) {
           <button type="button" onclick="showDashboardPanel('domains')">Manage</button>
         </div>
         <div class="dash-card">
-          <h3>🚀 Hosting</h3>
-          <p>${_sel.plan} Active</p>
-          <button type="button" onclick="showDashboardPanel('hosting')">Open</button>
+          <h3>🌐 DNS Settings</h3>
+          <p>Manage DNS records</p>
+          <button type="button" onclick="openDNS()">Open</button>
         </div>
         <div class="dash-card">
           <h3>📧 Business Email</h3>
           <p>Coming Soon</p>
-          <button type="button" onclick="showDashboardPanel('email')">Setup</button>
+          <button type="button" disabled>Coming Soon</button>
         </div>
         <div class="dash-card">
           <h3>🤖 AI Website Builder</h3>
-          <p>Generate website</p>
-          <button type="button" onclick="showDashboardPanel('ai')">Launch</button>
+          <p>Coming Soon</p>
+          <button type="button" disabled>Coming Soon</button>
         </div>
       </div>
       <div id="dashboardPanel" class="dashboard-panel">
@@ -259,15 +259,6 @@ function showDashboardPanel(type) {
       <div class="panel-actions">
         <button type="button" onclick="openDNS()">DNS Settings</button>
         <button type="button">Renew Domain</button>
-      </div>`;
-
-  } else if (type === 'hosting') {
-    panel.innerHTML = `
-      <h3>🚀 Hosting Manager</h3>
-      <p>Your ${_sel.plan} hosting is active.</p>
-      <div class="panel-actions">
-        <button type="button">Open File Manager</button>
-        <button type="button">Connect Website</button>
       </div>`;
 
   } else if (type === 'email') {
