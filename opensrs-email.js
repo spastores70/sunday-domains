@@ -40,17 +40,24 @@ async function call(method, body = {}) {
   if (_detectedCluster || process.env.OPENSRS_EMAIL_CLUSTER) {
     return rawCall(API_HOST(cluster()), method, body);
   }
+  const errs = [];
   for (const cl of ['a', 'b']) {
     try {
       const result = await rawCall(API_HOST(cl), method, body);
-      if (result.success !== false || result.error_number !== 1) {
-        _detectedCluster = cl;
-        console.log(`OpenSRS Email: detected cluster ${cl}`);
-        return result;
+      // error_number 1 = bad credentials — cluster is reachable but creds wrong
+      if (result.error_number === 1) {
+        throw new Error(`Cluster ${cl.toUpperCase()} reachable but credentials rejected. Check OPENSRS_EMAIL_PASSWORD in Railway.`);
       }
-    } catch (_) {}
+      _detectedCluster = cl;
+      console.log(`OpenSRS Email: detected cluster ${cl}`);
+      return result;
+    } catch (e) {
+      errs.push(e.message);
+      // If it's a credential error (not a network error), stop trying — both clusters share creds
+      if (e.message.includes('credentials rejected')) throw e;
+    }
   }
-  throw new Error('Could not reach OpenSRS Email API on cluster A or B — check credentials');
+  throw new Error(`OpenSRS Email unreachable: ${errs.join(' | ')}`);
 }
 
 // ─── Domain ──────────────────────────────────────────────────────────────────

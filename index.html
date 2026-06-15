@@ -303,18 +303,16 @@
       <div id="modalStep2" class="modal-step-hidden">
         <button type="button" class="back-btn" onclick="backToContact()">← Back</button>
         <h2>Secure Checkout</h2>
-        <p>Your card will be charged today. OpenSRS registers the domain.</p>
-        <input type="text" id="cardNumber" placeholder="Card Number" />
-        <div class="card-row">
-          <input type="text" id="cardExpiry" placeholder="MM/YY" />
-          <input type="text" id="cardCvc"    placeholder="CVC" />
-        </div>
-        <button type="button" class="btn-pay" onclick="confirmOrder()">Complete Order 🔒</button>
+        <p>Your card will be charged today. Domain is registered instantly.</p>
+        <div id="card-element"></div>
+        <div id="card-errors" class="card-errors"></div>
+        <button type="button" class="btn-pay" id="payBtn" onclick="confirmOrder()">Complete Order 🔒</button>
       </div>
 
     </div>
   </div>
 
+  <script src="https://js.stripe.com/v3/"></script>
   <script src="script.js"></script>
 </body>
 </html>

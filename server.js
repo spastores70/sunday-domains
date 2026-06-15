@@ -7,6 +7,7 @@ const cors    = require('cors');
 const path    = require('path');
 const opensrs      = require('./opensrs');
 const opensrsEmail = require('./opensrs-email');
+const stripe       = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const app = express();
 
@@ -199,6 +200,32 @@ app.get('/api/debug/ip', async (req, res) => {
   res.json({ https_ip: httpIp, http_ip: http80Ip, alt_ip: altIp });
 });
 
+// ─── POST /api/stripe/create-payment-intent ──────────────────────────────────
+// Creates a PaymentIntent for the domain price. Client confirms payment,
+// then calls /api/domain/register only on success.
+app.post('/api/stripe/create-payment-intent', async (req, res) => {
+  const { domain } = req.body ?? {};
+  if (!domain) return res.status(400).json({ error: '"domain" is required' });
+
+  const TLD_CENTS = {
+    '.com': 1499, '.net': 1699, '.org': 1599, '.co': 2499, '.ai': 7999,
+  };
+  const ext = Object.keys(TLD_CENTS).find(e => domain.endsWith(e));
+  if (!ext) return res.status(400).json({ error: 'Unsupported TLD' });
+
+  try {
+    const intent = await stripe.paymentIntents.create({
+      amount:   TLD_CENTS[ext],
+      currency: 'usd',
+      metadata: { domain },
+      description: `Domain registration: ${domain}`,
+    });
+    res.json({ clientSecret: intent.client_secret });
+  } catch (err) {
+    res.status(502).json({ error: err.message });
+  }
+});
+
 // ─── POST /api/domain/register ───────────────────────────────────────────────
 // Body: { domain, period?, contact: { first_name, last_name, email, phone,
 //          address1, city, state, country, postal_code, org_name? } }
@@ -249,12 +276,34 @@ app.put('/api/dns/:domain', async (req, res) => {
 
 // ─── GET /api/debug/email ─────────────────────────────────────────────────────
 app.get('/api/debug/email', async (req, res) => {
-  try {
-    const result = await opensrsEmail.getDomain('spastores70.adm');
-    res.json({ connected: true, cluster: opensrsEmail.cluster(), result });
-  } catch (err) {
-    res.status(502).json({ connected: false, error: err.message });
+  const https = require('https');
+  const admin = process.env.OPENSRS_EMAIL_ADMIN ?? '';
+  const pass  = process.env.OPENSRS_EMAIL_PASSWORD ?? '';
+
+  // Try authenticate method on cluster A and B
+  async function tryCluster(cl) {
+    const host    = `admin.${cl}.hostedemail.com`;
+    const payload = Buffer.from(JSON.stringify({
+      credentials: { user: admin, password: pass, client: 'SundayDomains' },
+    }), 'utf8');
+    return new Promise((resolve) => {
+      const req = https.request({
+        host, port: 443, path: '/api/authenticate', method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Content-Length': payload.length },
+      }, r => {
+        let d = ''; r.on('data', c => d += c);
+        r.on('end', () => {
+          try { resolve({ cl, ...JSON.parse(d) }); }
+          catch (e) { resolve({ cl, parse_error: d.slice(0, 100) }); }
+        });
+      });
+      req.on('error', e => resolve({ cl, network_error: e.message }));
+      req.write(payload); req.end();
+    });
   }
+
+  const [a, b] = await Promise.all([tryCluster('a'), tryCluster('b')]);
+  res.json({ admin_user: admin, password_length: pass.length, cluster_a: a, cluster_b: b });
 });
 
 // ─── POST /api/email/provision ───────────────────────────────────────────────

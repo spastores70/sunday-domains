@@ -1,8 +1,16 @@
 'use strict';
 
+// ─── Stripe ───────────────────────────────────────────────────────────────────
+const _stripe = Stripe('pk_live_51Sag55Ru5ECekCteCip2Sa5ELdT8JINjLfTXXXPuYziG5hrJ6xn0BSNDmz60DpqP2M6kZGy3TU32qmxdYf53c0C500KJAIMdQm');
+const _elements = _stripe.elements();
+const _cardElement = _elements.create('card', {
+  style: {
+    base: { fontSize: '16px', color: '#1a1a2e', '::placeholder': { color: '#aab' } },
+  },
+});
+let _cardMounted = false;
+
 // ─── State ────────────────────────────────────────────────────────────────────
-// Holds the current selection through the funnel so we never pass data
-// through fragile inline onclick strings.
 const _sel = {
   domain:      null,
   domainPrice: null,
@@ -135,6 +143,13 @@ function showStep(n) {
   document.querySelectorAll('.step-dot').forEach((d, i) => {
     d.classList.toggle('active', i + 1 <= n);
   });
+  if (n === 2 && !_cardMounted) {
+    _cardElement.mount('#card-element');
+    _cardElement.on('change', e => {
+      document.getElementById('card-errors').textContent = e.error ? e.error.message : '';
+    });
+    _cardMounted = true;
+  }
 }
 
 function goToPayment() {
@@ -171,16 +186,12 @@ function backToContact() {
   showStep(1);
 }
 
-// ─── Confirm order → register domain ─────────────────────────────────────────
+// ─── Confirm order → charge card → register domain ────────────────────────────
 async function confirmOrder() {
-  const card   = document.getElementById('cardNumber').value.trim();
-  const expiry = document.getElementById('cardExpiry').value.trim();
-  const cvc    = document.getElementById('cardCvc').value.trim();
-
-  if (!card || !expiry || !cvc) {
-    alert('Please fill in all payment fields.');
-    return;
-  }
+  const payBtn = document.getElementById('payBtn');
+  payBtn.textContent = 'Processing…';
+  payBtn.disabled = true;
+  document.getElementById('card-errors').textContent = '';
 
   const contact = {
     first_name:  document.getElementById('firstName').value.trim(),
@@ -194,32 +205,48 @@ async function confirmOrder() {
     country:     document.getElementById('contactCountry').value.trim(),
   };
 
-  // Show loading state inside modal
-  const payBtn = document.querySelector('#modalStep2 .btn-pay');
-  payBtn.textContent = 'Processing…';
-  payBtn.disabled = true;
-
-  // NOTE: In production, charge the card via Stripe here first, then register.
-  // OpenSRS bills the reseller account — it does not process customer payments.
   try {
-    const resp = await fetch('/api/domain/register', {
+    // 1. Create PaymentIntent on server
+    const intentResp = await fetch('/api/stripe/create-payment-intent', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ domain: _sel.domain }),
+    });
+    const { clientSecret, error: intentErr } = await intentResp.json();
+    if (intentErr) throw new Error(intentErr);
+
+    // 2. Confirm card payment via Stripe.js (never touches raw card data server-side)
+    const { paymentIntent, error: stripeErr } = await _stripe.confirmCardPayment(clientSecret, {
+      payment_method: {
+        card: _cardElement,
+        billing_details: {
+          name:  `${contact.first_name} ${contact.last_name}`,
+          email: contact.email,
+        },
+      },
+    });
+    if (stripeErr) throw new Error(stripeErr.message);
+    if (paymentIntent.status !== 'succeeded') throw new Error('Payment did not complete.');
+
+    // 3. Payment succeeded — now register the domain
+    const regResp = await fetch('/api/domain/register', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify({ domain: _sel.domain, period: 1, contact }),
     });
-
-    const data = await resp.json();
+    const regData = await regResp.json();
     closeCheckout();
 
-    if (!resp.ok || !data.success) {
-      showOrderError(data.error ?? data.response_text ?? 'Registration failed.');
+    if (!regResp.ok || !regData.success) {
+      showOrderError(`Payment succeeded but domain registration failed: ${regData.error ?? regData.response_text ?? 'unknown error'}. Contact support with order ID: ${paymentIntent.id}`);
       return;
     }
 
     showDashboard(contact);
   } catch (err) {
-    closeCheckout();
-    showOrderError(err.message);
+    document.getElementById('card-errors').textContent = err.message;
+    payBtn.textContent = 'Complete Order 🔒';
+    payBtn.disabled = false;
   }
 }
 
