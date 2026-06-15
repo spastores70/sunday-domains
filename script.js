@@ -75,60 +75,13 @@ document.addEventListener('DOMContentLoaded', () => {
 function selectDomain(domain, price) {
   _sel.domain      = domain;
   _sel.domainPrice = price;
-
-  document.getElementById('result').innerHTML += `
-    <div class="checkout-box">
-      <h3>🛒 Build Your Package</h3>
-      <div class="summary">
-        <p>Domain: <strong>${domain}</strong></p>
-        <p>Price: <strong>${price}</strong></p>
-      </div>
-      <h4>Add Hosting</h4>
-      <div class="hosting-grid">
-        <div class="host-card">
-          <h5>Starter</h5>
-          <p>$5/mo</p>
-          <small>1 Website</small>
-          <button type="button" onclick="chooseHosting('Starter', 5)">Select</button>
-        </div>
-        <div class="host-card">
-          <h5>Business</h5>
-          <p>$12/mo</p>
-          <small>Unlimited Sites</small>
-          <button type="button" onclick="chooseHosting('Business', 12)">Select</button>
-        </div>
-        <div class="host-card premium">
-          <h5>AI Builder</h5>
-          <p>$29/mo</p>
-          <small>Domain + Website</small>
-          <button type="button" onclick="chooseHosting('AI Builder', 29)">Select</button>
-        </div>
-      </div>
-    </div>`;
-}
-
-// ─── Funnel: Choose hosting ───────────────────────────────────────────────────
-function chooseHosting(plan, monthly) {
-  _sel.plan       = plan;
-  _sel.monthly    = monthly;
-  _sel.domainCost = parseFloat((_sel.domainPrice ?? '$0').replace(/[^0-9.]/g, ''));
-
-  const total = (_sel.domainCost + monthly).toFixed(2);
-
-  document.getElementById('result').innerHTML += `
-    <div class="final-checkout">
-      <h3>✅ Package Summary</h3>
-      <p><strong>Domain:</strong> ${_sel.domain}</p>
-      <p><strong>Hosting Plan:</strong> ${plan}</p>
-      <p><strong>Hosting:</strong> $${monthly}/month</p>
-      <hr>
-      <p class="total">Total Today: $${total}</p>
-      <button type="button" onclick="openCheckout()">Pay Now</button>
-    </div>`;
+  openCheckout();
 }
 
 // ─── Modal: open / close / step navigation ────────────────────────────────────
 function openCheckout() {
+  document.getElementById('modalDomainLine').textContent =
+    `Registering: ${_sel.domain} — ${_sel.domainPrice}`;
   document.getElementById('paymentModal').style.display = 'flex';
   showStep(1);
 }
