@@ -1580,3 +1580,57 @@ body {
   .hero h1     { letter-spacing: -1px; }
   .nav-actions .btn-ghost { display: none; }
 }
+
+/* ── BUSINESS EMAIL ─────────────────────────────────────────── */
+.email-setup { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+.email-at-domain {
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 0 10px 10px 0;
+  font-size: 14px;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+.email-setup .input-row { display: flex; gap: 0; }
+.email-setup .input-row input {
+  border-radius: 10px 0 0 10px;
+  flex: 1;
+  min-width: 0;
+}
+.email-hint { font-size: 12px; color: #64748b; margin: 0; }
+.email-success {
+  margin-top: 16px;
+  padding: 20px;
+  background: rgba(16,185,129,0.1);
+  border: 1px solid rgba(16,185,129,0.3);
+  border-radius: 12px;
+}
+.email-success h4 { margin: 0 0 12px; color: #10b981; }
+.email-creds {
+  background: rgba(0,0,0,0.2);
+  border-radius: 8px;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+}
+.email-creds code {
+  background: rgba(255,255,255,0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 13px;
+  letter-spacing: .5px;
+}
+.email-settings-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  margin-top: 10px;
+  padding: 10px 14px;
+  background: rgba(0,0,0,0.15);
+  border-radius: 8px;
+}

@@ -293,10 +293,21 @@ function showDashboardPanel(type) {
   } else if (type === 'email') {
     panel.innerHTML = `
       <h3>📧 Business Email</h3>
-      <p>Create a professional email like hello@${_sel.domain}</p>
-      <div class="panel-actions">
-        <button type="button">Create Email</button>
-      </div>`;
+      <p>Create professional mailboxes for <strong>${_sel.domain}</strong></p>
+      <div class="email-setup">
+        <div class="input-row">
+          <input type="text" id="emailPrefix" placeholder="e.g. hello, info, contact" />
+          <span class="email-at-domain">@${_sel.domain}</span>
+        </div>
+        <input type="text" id="emailFirstName" placeholder="First Name (optional)" />
+        <input type="text" id="emailLastName"  placeholder="Last Name (optional)" />
+        <p class="email-hint">A secure password will be generated automatically.</p>
+        <button type="button" onclick="createBusinessEmail()">Create Mailbox</button>
+        <div id="emailResult"></div>
+      </div>
+      <hr style="margin:1.5rem 0;border-color:#eee"/>
+      <button type="button" onclick="loadMailboxList()">View All Mailboxes</button>
+      <div id="mailboxList"></div>`;
 
   } else if (type === 'ai') {
     panel.innerHTML = `
@@ -409,6 +420,106 @@ async function saveDNS() {
     saveBtn.textContent = 'Save DNS';
     saveBtn.disabled    = false;
   }
+}
+
+// ─── Business Email ───────────────────────────────────────────────────────────
+function _genPassword() {
+  const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$';
+  return Array.from(crypto.getRandomValues(new Uint8Array(14)))
+    .map(b => chars[b % chars.length]).join('');
+}
+
+async function createBusinessEmail() {
+  const prefix = (document.getElementById('emailPrefix')?.value ?? '').trim().toLowerCase();
+  if (!prefix) { alert('Please enter an email prefix (e.g. hello).'); return; }
+
+  const email     = `${prefix}@${_sel.domain}`;
+  const password  = _genPassword();
+  const firstName = (document.getElementById('emailFirstName')?.value ?? '').trim();
+  const lastName  = (document.getElementById('emailLastName')?.value  ?? '').trim();
+  const resultDiv = document.getElementById('emailResult');
+  const btn       = resultDiv.previousElementSibling;
+
+  btn.textContent = 'Creating…';
+  btn.disabled    = true;
+  resultDiv.innerHTML = '';
+
+  try {
+    // First provision the domain (idempotent — safe to call again if already done)
+    await fetch('/api/email/provision', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ domain: _sel.domain }),
+    });
+
+    const resp = await fetch('/api/email/mailbox', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ email, password, first_name: firstName, last_name: lastName }),
+    });
+    const data = await resp.json();
+
+    if (!resp.ok || !data.success) throw new Error(data.error ?? 'Mailbox creation failed');
+
+    const s = data.settings;
+    resultDiv.innerHTML = `
+      <div class="email-success">
+        <h4>✅ Mailbox Created!</h4>
+        <div class="email-creds">
+          <div><strong>Email:</strong> ${email}</div>
+          <div><strong>Password:</strong> <code>${password}</code></div>
+        </div>
+        <details style="margin-top:1rem">
+          <summary>📬 Email Client Settings</summary>
+          <div class="email-settings-grid">
+            <div><strong>Webmail:</strong> <a href="${s.webmail}" target="_blank">${s.webmail}</a></div>
+            <div><strong>IMAP:</strong> ${s.imap.host} port ${s.imap.port} (${s.imap.security})</div>
+            <div><strong>SMTP:</strong> ${s.smtp.host} port ${s.smtp.port} (${s.smtp.security})</div>
+          </div>
+        </details>
+        <p class="email-hint" style="margin-top:.75rem">Save your password — it won't be shown again.</p>
+      </div>`;
+  } catch (err) {
+    resultDiv.innerHTML = `<p class="api-error">⚠️ ${err.message}</p>`;
+  } finally {
+    btn.textContent = 'Create Mailbox';
+    btn.disabled    = false;
+  }
+}
+
+async function loadMailboxList() {
+  const listDiv = document.getElementById('mailboxList');
+  listDiv.innerHTML = '<p>Loading…</p>';
+  try {
+    const resp = await fetch(`/api/email/mailboxes/${encodeURIComponent(_sel.domain)}`);
+    const data = await resp.json();
+    const users = data.users ?? data.results ?? [];
+    if (!users.length) {
+      listDiv.innerHTML = '<p style="color:#888">No mailboxes yet.</p>';
+      return;
+    }
+    listDiv.innerHTML = `
+      <table class="dns-table" style="margin-top:1rem">
+        <thead><tr><th>Email</th><th>Status</th><th></th></tr></thead>
+        <tbody>${users.map(u => `
+          <tr>
+            <td>${u.user ?? u.email ?? u}</td>
+            <td>${u.status ?? 'active'}</td>
+            <td><button type="button" onclick="deleteEmail('${u.user ?? u.email ?? u}')">Delete</button></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>`;
+  } catch (err) {
+    listDiv.innerHTML = `<p class="api-error">⚠️ ${err.message}</p>`;
+  }
+}
+
+async function deleteEmail(email) {
+  if (!confirm(`Delete ${email}? This cannot be undone.`)) return;
+  const resp = await fetch(`/api/email/mailbox/${encodeURIComponent(email)}`, { method: 'DELETE' });
+  const data = await resp.json();
+  if (data.success) loadMailboxList();
+  else alert('Delete failed: ' + (data.error ?? 'unknown error'));
 }
 
 // ─── AI Website Builder ───────────────────────────────────────────────────────

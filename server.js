@@ -5,7 +5,8 @@ require('dotenv').config();
 const express = require('express');
 const cors    = require('cors');
 const path    = require('path');
-const opensrs = require('./opensrs');
+const opensrs      = require('./opensrs');
+const opensrsEmail = require('./opensrs-email');
 
 const app = express();
 
@@ -241,6 +242,63 @@ app.put('/api/dns/:domain', async (req, res) => {
   }
   try {
     res.json(await opensrs.updateDnsZone(req.params.domain, records));
+  } catch (err) {
+    res.status(502).json({ error: err.message });
+  }
+});
+
+// ─── POST /api/email/provision ───────────────────────────────────────────────
+// Registers a domain with OpenSRS email hosting + returns MX record to set.
+app.post('/api/email/provision', async (req, res) => {
+  const { domain } = req.body ?? {};
+  if (!domain) return res.status(400).json({ error: '"domain" is required' });
+  try {
+    const result = await opensrsEmail.provisionDomain(domain);
+    res.json({
+      success: result.success ?? false,
+      domain,
+      mx_hostname: opensrsEmail.mxHostname(),
+      mx_priority: 10,
+      error: result.error ?? null,
+    });
+  } catch (err) {
+    res.status(502).json({ error: err.message });
+  }
+});
+
+// ─── POST /api/email/mailbox ──────────────────────────────────────────────────
+// Creates a mailbox. Body: { email, password, first_name?, last_name? }
+app.post('/api/email/mailbox', async (req, res) => {
+  const { email, password, first_name, last_name } = req.body ?? {};
+  if (!email)    return res.status(400).json({ error: '"email" is required' });
+  if (!password) return res.status(400).json({ error: '"password" is required' });
+  try {
+    const result = await opensrsEmail.createMailbox({ email, password, firstName: first_name, lastName: last_name });
+    const cl = opensrsEmail.cluster();
+    res.json({
+      success:  result.success ?? false,
+      email,
+      settings: opensrsEmail.connectionSettings(cl),
+      error:    result.error ?? null,
+    });
+  } catch (err) {
+    res.status(502).json({ error: err.message });
+  }
+});
+
+// ─── GET /api/email/mailboxes/:domain ────────────────────────────────────────
+app.get('/api/email/mailboxes/:domain', async (req, res) => {
+  try {
+    res.json(await opensrsEmail.listMailboxes(req.params.domain));
+  } catch (err) {
+    res.status(502).json({ error: err.message });
+  }
+});
+
+// ─── DELETE /api/email/mailbox/:email ────────────────────────────────────────
+app.delete('/api/email/mailbox/:email', async (req, res) => {
+  try {
+    res.json(await opensrsEmail.deleteMailbox(req.params.email));
   } catch (err) {
     res.status(502).json({ error: err.message });
   }
