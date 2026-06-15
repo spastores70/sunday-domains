@@ -470,11 +470,13 @@ async function createBusinessEmail() {
           <div><strong>Password:</strong> <code>${password}</code></div>
         </div>
         <details style="margin-top:1rem">
-          <summary>📬 Email Client Settings</summary>
+          <summary>📬 Email Client Settings (Outlook / Apple Mail / Thunderbird)</summary>
           <div class="email-settings-grid">
             <div><strong>Webmail:</strong> <a href="${s.webmail}" target="_blank">${s.webmail}</a></div>
-            <div><strong>IMAP:</strong> ${s.imap.host} port ${s.imap.port} (${s.imap.security})</div>
-            <div><strong>SMTP:</strong> ${s.smtp.host} port ${s.smtp.port} (${s.smtp.security})</div>
+            <div><strong>Username:</strong> ${email}</div>
+            <div><strong>IMAP:</strong> ${s.imap.host} — ${s.imap.security}</div>
+            <div><strong>SMTP:</strong> ${s.smtp.host} — ${s.smtp.security}</div>
+            <div><strong>POP3:</strong> ${s.pop3.host} — SSL port ${s.pop3.port_ssl}</div>
           </div>
         </details>
         <p class="email-hint" style="margin-top:.75rem">Save your password — it won't be shown again.</p>

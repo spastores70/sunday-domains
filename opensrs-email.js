@@ -2,9 +2,11 @@
 
 const https = require('https');
 
-// Cluster: 'test' | 'a' | 'b' — set OPENSRS_EMAIL_CLUSTER in env
-const cluster = () => process.env.OPENSRS_EMAIL_CLUSTER || 'test';
-const API_HOST = () => `admin.${cluster()}.hostedemail.com`;
+// Cluster: 'a' | 'b' | 'test' — auto-detected on first call if not set
+let _detectedCluster = null;
+
+const cluster = () => _detectedCluster || process.env.OPENSRS_EMAIL_CLUSTER || 'a';
+const API_HOST = (cl) => `admin.${cl}.hostedemail.com`;
 
 function creds() {
   const user = process.env.OPENSRS_EMAIL_ADMIN;
@@ -13,18 +15,12 @@ function creds() {
   return { user, password: pass, client: 'SundayDomains' };
 }
 
-async function call(method, body = {}) {
+async function rawCall(host, method, body = {}) {
   const payload = Buffer.from(JSON.stringify({ credentials: creds(), ...body }), 'utf8');
-  const data = await new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     const req = https.request({
-      host:   API_HOST(),
-      port:   443,
-      path:   `/api/${method}`,
-      method: 'POST',
-      headers: {
-        'Content-Type':   'application/json',
-        'Content-Length': payload.length,
-      },
+      host, port: 443, path: `/api/${method}`, method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Content-Length': payload.length },
     }, res => {
       let raw = '';
       res.on('data', c => raw += c);
@@ -37,7 +33,24 @@ async function call(method, body = {}) {
     req.write(payload);
     req.end();
   });
-  return data;
+}
+
+// Auto-detects cluster on first authenticated call (tries a then b).
+async function call(method, body = {}) {
+  if (_detectedCluster || process.env.OPENSRS_EMAIL_CLUSTER) {
+    return rawCall(API_HOST(cluster()), method, body);
+  }
+  for (const cl of ['a', 'b']) {
+    try {
+      const result = await rawCall(API_HOST(cl), method, body);
+      if (result.success !== false || result.error_number !== 1) {
+        _detectedCluster = cl;
+        console.log(`OpenSRS Email: detected cluster ${cl}`);
+        return result;
+      }
+    } catch (_) {}
+  }
+  throw new Error('Could not reach OpenSRS Email API on cluster A or B — check credentials');
 }
 
 // ─── Domain ──────────────────────────────────────────────────────────────────
@@ -83,14 +96,14 @@ function mxHostname() {
 }
 
 // IMAP/SMTP settings to show the customer after mailbox creation
-function connectionSettings(cluster) {
-  const host = cluster === 'b' ? 'mail.b.hostedemail.com' : 'mail.hostedemail.com';
+function connectionSettings(cl) {
+  const isB  = cl === 'b';
+  const host = isB ? 'mail.b.hostedemail.com' : 'mail.hostedemail.com';
   return {
-    imap: { host, port: 993, security: 'SSL/TLS' },
-    smtp: { host, port: 465, security: 'SSL/TLS' },
-    webmail: cluster === 'b'
-      ? 'https://webmail.b.hostedemail.com'
-      : 'https://webmail.hostedemail.com',
+    imap:    { host, port_ssl: 993, port_plain: 143, security: 'SSL on port 993' },
+    pop3:    { host, port_ssl: 995, port_plain: 110 },
+    smtp:    { host, port_ssl: 465, port_tls: 587, security: 'SSL on 465 or TLS on 587' },
+    webmail: isB ? 'https://mail.b.hostedemail.com' : 'https://mail.hostedemail.com',
   };
 }
 

@@ -247,6 +247,16 @@ app.put('/api/dns/:domain', async (req, res) => {
   }
 });
 
+// ─── GET /api/debug/email ─────────────────────────────────────────────────────
+app.get('/api/debug/email', async (req, res) => {
+  try {
+    const result = await opensrsEmail.getDomain('spastores70.adm');
+    res.json({ connected: true, cluster: opensrsEmail.cluster(), result });
+  } catch (err) {
+    res.status(502).json({ connected: false, error: err.message });
+  }
+});
+
 // ─── POST /api/email/provision ───────────────────────────────────────────────
 // Registers a domain with OpenSRS email hosting + returns MX record to set.
 app.post('/api/email/provision', async (req, res) => {
