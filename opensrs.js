@@ -1,7 +1,7 @@
 'use strict';
 
 const crypto = require('crypto');
-const axios  = require('axios');
+const https  = require('https');
 const { parseStringPromise } = require('xml2js');
 
 // ─── Transport URL ────────────────────────────────────────────────────────────
@@ -87,16 +87,33 @@ async function send(xmlBody) {
     throw new Error('OPENSRS_API_USERNAME is not set in environment');
   }
   const signature = sign(xmlBody);
-  const { data } = await axios.post(API_URL, xmlBody, {
-    headers: {
-      'Content-Type':   'text/xml',
-      'X-Username':     process.env.OPENSRS_API_USERNAME,
-      'X-Signature':    signature,
-      'Content-Length': Buffer.byteLength(xmlBody, 'utf8').toString(),
-    },
-    responseType: 'text',
-    timeout: 20000,
+  const bodyBuf   = Buffer.from(xmlBody, 'utf8');
+  const url       = new URL(API_URL);
+
+  const data = await new Promise((resolve, reject) => {
+    const req = https.request({
+      host:    url.hostname,
+      port:    url.port || 55443,
+      path:    url.pathname,
+      method:  'POST',
+      timeout: 20000,
+      headers: {
+        'Content-Type':   'text/xml',
+        'X-Username':     process.env.OPENSRS_API_USERNAME,
+        'X-Signature':    signature,
+        'Content-Length': bodyBuf.length,
+      },
+    }, res => {
+      let raw = '';
+      res.on('data', chunk => { raw += chunk; });
+      res.on('end', () => resolve(raw));
+    });
+    req.on('timeout', () => { req.destroy(); reject(new Error('OpenSRS request timed out')); });
+    req.on('error', reject);
+    req.write(bodyBuf);
+    req.end();
   });
+
   return parseResponse(data);
 }
 

@@ -59,6 +59,103 @@ app.get('/api/domain/check', async (req, res) => {
   }
 });
 
+// ─── GET /api/debug/rawreq ────────────────────────────────────────────────────
+// Sends the OpenSRS request using raw Node https (bypasses axios) for diagnostics.
+app.get('/api/debug/rawreq', async (req, res) => {
+  const crypto = require('crypto');
+  const https  = require('https');
+  const md5    = str => crypto.createHash('md5').update(str, 'utf8').digest('hex');
+  const key    = process.env.OPENSRS_PRIVATE_KEY ?? '';
+  const user   = process.env.OPENSRS_API_USERNAME ?? '';
+  const isProd = process.env.OPENSRS_ENV === 'production';
+  const host   = isProd ? 'rr-n1-tor.opensrs.net' : 'horizon.opensrs.net';
+
+  const body = `<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<!DOCTYPE OPS_envelope SYSTEM 'ops.dtd'>
+<OPS_envelope>
+  <header><version>0.9</version></header>
+  <body><data_block><dt_assoc>
+    <item key="protocol">XCP</item>
+    <item key="action">LOOKUP</item>
+    <item key="object">DOMAIN</item>
+    <item key="attributes"><dt_assoc>
+      <item key="domain">testrawreq123.com</item>
+    </dt_assoc></item>
+  </dt_assoc></data_block></body>
+</OPS_envelope>`;
+
+  const sig     = md5(md5(body + key) + key);
+  const bodyBuf = Buffer.from(body, 'utf8');
+
+  const raw = await new Promise((resolve, reject) => {
+    const opts = {
+      host, port: 55443, path: '/cgi/ORS', method: 'POST',
+      headers: {
+        'Content-Type':   'text/xml',
+        'X-Username':     user,
+        'X-Signature':    sig,
+        'Content-Length': bodyBuf.length,
+      },
+    };
+    const req2 = https.request(opts, r => {
+      let d = '';
+      r.on('data', c => d += c);
+      r.on('end', () => resolve(d));
+    });
+    req2.on('error', reject);
+    req2.write(bodyBuf);
+    req2.end();
+  });
+
+  res.json({ host, signature: sig, response: raw.slice(0, 600) });
+});
+
+// ─── GET /api/debug/auth ──────────────────────────────────────────────────────
+// Shows the exact XML body + signature being sent — helps diagnose signing issues.
+app.get('/api/debug/auth', async (req, res) => {
+  const crypto = require('crypto');
+  const md5 = str => crypto.createHash('md5').update(str, 'utf8').digest('hex');
+  const key  = process.env.OPENSRS_PRIVATE_KEY ?? '';
+  const user = process.env.OPENSRS_API_USERNAME ?? '';
+  const env  = process.env.OPENSRS_ENV === 'production' ? 'production' : 'test';
+
+  const xmlBody = `<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<!DOCTYPE OPS_envelope SYSTEM 'ops.dtd'>
+<OPS_envelope>
+  <header><version>0.9</version></header>
+  <body>
+    <data_block>
+      <dt_assoc>
+        <item key="protocol">XCP</item>
+        <item key="action">LOOKUP</item>
+        <item key="object">DOMAIN</item>
+        <item key="attributes">
+          <dt_assoc>
+        <item key="domain">testdiagnostic123.com</item>
+  </dt_assoc>
+        </item>
+      </dt_assoc>
+    </data_block>
+  </body>
+</OPS_envelope>`;
+
+  const inner = md5(xmlBody + key);
+  const sig   = md5(inner + key);
+
+  res.json({
+    env,
+    username: user,
+    key_length: key.length,
+    key_first8: key.slice(0, 8),
+    xml_byte_length: Buffer.byteLength(xmlBody, 'utf8'),
+    inner_md5: inner,
+    signature: sig,
+    api_url: env === 'production'
+      ? 'https://rr-n1-tor.opensrs.net:55443/cgi/ORS'
+      : 'https://horizon.opensrs.net:55443/cgi/ORS',
+  });
+});
+
 // ─── GET /api/debug/lookup?name=example.com ────────────────────────────────────
 // Returns the raw parsed OpenSRS response — remove before going to production.
 app.get('/api/debug/lookup', async (req, res) => {
@@ -69,6 +166,36 @@ app.get('/api/debug/lookup', async (req, res) => {
   } catch (err) {
     res.status(502).json({ error: err.message });
   }
+});
+
+// ─── GET /api/debug/ip ────────────────────────────────────────────────────────
+// Returns this server's outbound public IP from multiple sources.
+app.get('/api/debug/ip', async (req, res) => {
+  const axios = require('axios');
+  const net   = require('net');
+
+  // Check via HTTP (port 443)
+  let httpIp = null;
+  try {
+    const r = await axios.get('https://api.ipify.org?format=json', { timeout: 5000 });
+    httpIp = r.data.ip;
+  } catch (_) {}
+
+  // Also check via plain HTTP (port 80)
+  let http80Ip = null;
+  try {
+    const r = await axios.get('http://api.ipify.org?format=json', { timeout: 5000 });
+    http80Ip = r.data.ip;
+  } catch (_) {}
+
+  // Check via icanhazip (different service)
+  let altIp = null;
+  try {
+    const r = await axios.get('https://icanhazip.com', { timeout: 5000 });
+    altIp = r.data.trim();
+  } catch (_) {}
+
+  res.json({ https_ip: httpIp, http_ip: http80Ip, alt_ip: altIp });
 });
 
 // ─── POST /api/domain/register ───────────────────────────────────────────────
